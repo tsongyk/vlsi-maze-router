@@ -86,6 +86,7 @@ test/
 - Routing all nets with globally minimum total wirelength is NP-hard, so the
   shortest-first + rip-up-and-reroute strategy is a heuristic: it minimizes each net's
   length individually but does not guarantee a globally optimal layout.
-- The rip-up-and-reroute search is best-effort and is not guaranteed to terminate
-  cleanly on every unsatisfiable instance; a bounded iteration/recursion guard is a
-  natural next improvement.
+- The rip-up-and-reroute search is a best-effort heuristic: it is not guaranteed to
+  route every satisfiable instance. It terminates cleanly in all cases — when a net
+  cannot be placed, the ripped-up wires are restored and the net is reported as
+  unrouted rather than recursing indefinitely.

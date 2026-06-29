@@ -111,13 +111,18 @@ public class Routing {
     The fixConnection() performs a few operations on the board:
     - Removes neighboring wires (because they potentially block the current Endpoint)
     - Adds wires after pre-existing wires were removed
-    It will recurse if the current Endpoint still fails to connect
+    It will recurse if the current Endpoint still fails to connect, but only while
+    progress is possible: if there is no remaining wire to rip up, it restores the
+    board and reports failure instead of recursing forever.
+
+    Returns true if curr was successfully routed, false otherwise.
 
     // Time Complexity : O(2^n)
     */
 
-    public static void fixConnection(Board board, ArrayList<Wire> guide, ArrayList<Endpoints> goals, ArrayList<Integer> neighbors, Endpoints curr, ArrayList<Endpoints> updatedWires){
+    public static boolean fixConnection(Board board, ArrayList<Wire> guide, ArrayList<Endpoints> goals, ArrayList<Integer> neighbors, Endpoints curr, ArrayList<Endpoints> updatedWires){
         ArrayList<Integer> toAddLater = new ArrayList<>();
+        ArrayList<Wire> rippedWires = new ArrayList<>(); // Keep the removed wires so we can restore them if this attempt fails.
 
         for (Endpoints e : updatedWires){ // O(n)
             if (neighbors.contains(e.id)){ // O(n)
@@ -127,15 +132,12 @@ public class Routing {
         // Total Time Complexity : O(n^2)
 
         for (int x : neighbors){ // O(n)
-            for (Wire w : guide){ // O(n)
-                if (w.id == x){ // O(n)
-                    board.removeWire(w); // O(1)
-                }
-            } // Total Time Complexity : O(n^2)
             Iterator<Wire> itr = guide.iterator();
             while (itr.hasNext()) { // O(n)
                 Wire w = itr.next();
                 if (w.id == x) {
+                    board.removeWire(w); // O(1)
+                    rippedWires.add(w);  // Remember it in case we need to put it back.
                     itr.remove(); // O(1)
                 }
             } // Total Time Complexity : O(n)
@@ -164,19 +166,30 @@ public class Routing {
                             board.placeWire(pathUpdate); // O(n)
                             guide.add(pathUpdate); // O(1)
                         } else {
-//                            System.out.println(board.toString());
-//                            System.out.println("ID: " + e.id);
-//                            System.out.println("WIRES NOT BE TOUCHED: " + updatedWires);
-//                            System.out.println("NEW CORRDS: " + touchingNeighborsUpdate);
                             fixConnection(board, guide, goals, touchingNeighborsUpdate, e, updatedWires); // O(2^n)
                         }
 
                     }
                 }
             } // Total Time Complexity: O(n^3)
+            return true;
         } else {
+            // We could not route curr even after ripping up the eligible neighbors.
+            if (toAddLater.isEmpty()) {
+                // Nothing was ripped up this round, so recursing would repeat the
+                // exact same state forever. Stop and report failure.
+                return false;
+            }
             updatedWires.add(curr); // O(1)
-            fixConnection(board, guide, goals, touchingNeighbors, curr, updatedWires); // O(n^2)
+            boolean fixed = fixConnection(board, guide, goals, touchingNeighbors, curr, updatedWires); // O(n^2)
+            if (!fixed) {
+                // Backtrack: restore the wires we ripped up so the board stays consistent.
+                for (Wire w : rippedWires) {
+                    board.placeWire(w);
+                    guide.add(w);
+                }
+            }
+            return fixed;
         }
     }
 
