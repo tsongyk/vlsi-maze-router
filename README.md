@@ -1,13 +1,13 @@
-# VLSI Maze Router
+# Grid Maze Router
 
-A grid-based **maze router** for the multi-net wire-routing problem found in VLSI and
-PCB physical design. Given a rectangular grid with obstacle regions and a set of
-endpoint pairs ("nets"), the router connects every pair with a non-crossing,
-obstacle-avoiding path while minimizing total wire length.
+A grid-based **maze router** that connects pairs of points on a rectangular grid with
+non-crossing, obstacle-avoiding paths while minimizing total path length. Given a grid
+with obstacle regions and a set of endpoint pairs, the router links every pair without
+overlapping any other path.
 
-This is the same problem solved by the routing stage of chip and printed-circuit-board
-CAD tools: connect each net's pins through free routing tracks, never short two nets
-together, never run through a blocked region, and keep the aggregate wirelength small.
+This is the same class of algorithm used in the routing stage of VLSI and PCB physical
+design: connect each connection through free tracks, never overlap two routes, never run
+through a blocked region, and keep the aggregate length small.
 
 ## Algorithm
 
