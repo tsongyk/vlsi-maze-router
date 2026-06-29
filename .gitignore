@@ -1,0 +1,17 @@
+# Compiled output
+out/
+build/
+*.class
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.iml
+
+# Tooling
+.claude/
+
+# Assignment spec (not published)
+*.pdf
